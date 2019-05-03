@@ -31,6 +31,9 @@ block_trassen<-function(el,r,makro,mikro,n){
     ## die diese Systemtrasse an dem Tag nutzen
     konflikt_zeit<-apply(M,2,sum)>1
     
+    print("Blockiere die folgenden Tage für meinen Makro/Mirko-konflikt:")
+    print(konflikt_zeit)
+    
     ## Blockiere nun diese Systemtrasse und ihren parent auf dem eben berechneten Konfliktzeitraum
     mikro_indx<-which(el$id %in% mikro[k])
     

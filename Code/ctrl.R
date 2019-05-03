@@ -1,6 +1,6 @@
 ### Set Working Directory
 # ##
-setwd("~/02_Projekte/24_SAT und Ganzj Bel/Code")
+setwd("~/02_Projekte/24_SAT und Ganzj Bel/ganzjahr/Code")
 
 ### Load Libraries
 library(igraph)
@@ -63,9 +63,13 @@ stufe2_count<-0
 
 ## Set dynamische Schneideregel
 dyn_split <- T
+maxcount<-100
+count<-0
 
 ### Solange das Gesamtproblem nicht lösbar ist...
-while(res$status!=0){
+while(res$status!=0 & count <= maxcount){
+  count <- count #+ 1
+  nrow_old<-nrow(r)
   
   ## Finde einen Makrokonflikt Fahrlagen
   makro<-makro_konflikte(el[which(el$beenparent==0),],r[which(r$abgelehnt==0 & r$valid==1),])
@@ -134,7 +138,11 @@ while(res$status!=0){
         if((!all(r_candid$res==r$res) | (r$valid[varianten_indx[1]]==0) & (all(r$res[varianten_indx]!="0")))){
           r<-r_candid
           el<-el_candid
+          
+          # Make sure all systras have at least one valid day
+          stopifnot(all(apply(el[,7:(6+n)],1,sum)>0))
           terminate<-TRUE
+          break
         }
         
         #if(nrow(r)==nrow(r_candid)){#ich hab keine neue partition gefunden
@@ -209,7 +217,11 @@ while(res$status!=0){
             if((!all(r_candid$res==r$res) | (r$valid[varianten_indx[1]]==0) & (all(r$res[varianten_indx]!="0")))){
               r<-r_candid
               el<-el_candid
+              
+              # Make sure all systras have at least one valid day
+              stopifnot(all(apply(el[,7:(6+n)],1,sum)>0))
               terminate<-TRUE
+              break
             }
             
           #  if(nrow(r)==nrow(r_candid)){#ich hab keine neue partition gefunden
@@ -238,18 +250,19 @@ while(res$status!=0){
     
    
     #if(terminate==TRUE){
-      
-      ## Ergänze r um neuen Weg/ neue Partition des Gewinners
+    #  
+    ### Ergänze r um neuen Weg/ neue Partition des Gewinners
     #  r<-r_gewinner
     #  indx_update<-which(r$partition==partition_gewinner & r$fahrlage==fahrlage_gewinner)
     #  r$valid[indx_update]<-rep(1,length(indx_update))
     #  print(paste("The winner is: Fahrlage ",fahrlage_gewinner," und Partition ",partition_gewinner,sep=""))
-      
+    #
     #}
-    
+    #
     
     ## Falls keine neuen Wege in keiner Stufe gefunden und der Konflikt demnach nicht aufgelöst wurde, lehne Fahrlagen ab
-    if(terminate==FALSE){
+    ## Zusätzlich (für dyn. Schneideregeln): Lehne nicht ab, wenn eine neue Partition hinzu gekommen ist!
+    if(terminate==FALSE & nrow(r)==nrow_old){
       stufe2_count<-stufe2_count-1
       
       ablehnung_id<-makro[length(makro)]
@@ -271,7 +284,7 @@ while(res$status!=0){
   
   ## Solve SAT
   res<-lp(direction="max", objective.in=omega, const.mat=A, const.dir=dir, const.rhs=b, all.bin=TRUE)
-
+  print(res)
 }
 
 ## Dekodiere Gesamtlösung

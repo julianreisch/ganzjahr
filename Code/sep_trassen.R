@@ -5,6 +5,8 @@
 ## und füge die geteilten Systrassen dann der Lösungsmenge der beiden Fahrlagen 
 
 sep_trassen<-function(el,r,n,mikro,makro){
+  
+  nrow_old<-nrow(el)
  
   i<-1
   if(length(makro)==1){
@@ -35,32 +37,30 @@ sep_trassen<-function(el,r,n,mikro,makro){
               # Bestimme Gültigkeitszeitraum der Trasse
               gueltig<-which(el[which(el$id==mikro[k]),7:(6+n)]==1)
               
-              print("Das Fahrlagenvariantenpaar:")
+              print("Splitte Trasse für das Fahrlagenvariantenpaar:")
               print(r[c(p_index,q_index),])
               
-              print("Der Gültigkeitsraum der Trasse:")
+              print("Die zu splittende Trasse ist:")
               print(mikro[k])
-              print("lautet")
+              print("Und hat den Gültigkeitszeitraum")
               print(gueltig)
               
-              print("und damit gibt es den Schnitt:")
+              print("Der Schnitt der Gültigkeitszeiträume der Fahrlagenvarianten ist:")
 
               schnitt_var<-r[p_index,(11:(10+n))[gueltig]]*r[q_index,(11:(10+n))[gueltig]]
               print(schnitt_var)
               
+              print("Und die Vereinigung der Gültigkeitszeiträume der Fahrlagenvarianten:")
               union_var<-r[p_index,(11:(10+n))[gueltig]]+r[q_index,(11:(10+n))[gueltig]]
-              print(union_var)
               union_var<-sapply(as.numeric(union_var),max_1)
-              
-              print("Union Var:")
               print(union_var)
               
               ## Zerteile die Trasse nur, wenn sich die Varianten nicht überschneiden, aber den 
-              ## Gültigkeitsraum der Trasse schon überschneiden
-              if(all(schnitt_var==0) & !all(el[which(el$id==mikro[k]),(7:(6+n))[gueltig]] * union_var == 0)){
+              ## Gültigkeitsraum der Trasse mit beiden FLG Var Gültigkietszeiträumen überschneidet
+              if(all(schnitt_var==0) &
+                 !all(el[which(el$id==mikro[k]),(7:(6+n))[gueltig]] * r[p_index,(11:(10+n))[gueltig]] == 0) &
+                 !all(el[which(el$id==mikro[k]),(7:(6+n))[gueltig]] * r[q_index,(11:(10+n))[gueltig]] == 0)){
               
-                
-                el$beenparent[which(el$id==mikro[k])]<-1
                 
                 # Füge Teil der ersten Fahrlage als neue, kürzere Systemtrasse hinzu...
                 s_1<-el[which(el$id==mikro[k]),]
@@ -70,8 +70,12 @@ sep_trassen<-function(el,r,n,mikro,makro){
                 s_tage_1<-rep(0,n)
                 s_tage_1[gueltig]<-as.integer(r[p_index,(11:(10+n))[gueltig]])
                 s_1[1,7:(6+n)]<-s_tage_1
-                el<-rbind(el,s_1)
                 
+                if(sum(s_tage_1)>0){
+                  el<-rbind(el,s_1)
+
+                }
+
                 # ... und Teil der zweiten ...
                 s_2<-el[which(el$id==mikro[k]),]
                 s_2$id<-nrow(el)+1
@@ -80,8 +84,10 @@ sep_trassen<-function(el,r,n,mikro,makro){
                 s_tage_2<-rep(0,n)
                 s_tage_2[gueltig]<-as.integer(r[q_index,(11:(10+n))[gueltig]])
                 s_2[1,7:(6+n)]<-s_tage_2
-                el<-rbind(el,s_2)
-                
+                if(sum(s_tage_2)>0){
+                  el<-rbind(el,s_2)
+                  
+                }                
                 # Merke neue edge ids
                 ids_neu<-el$id[(nrow(el)-1):nrow(el)]
                 
@@ -97,17 +103,30 @@ sep_trassen<-function(el,r,n,mikro,makro){
                   s_rest$parent<-mikro[k]
                   s_rest$beenparent<-0
                   s_rest[1,7:(6+n)]<-s_tage_rest
-                  el<-rbind(el,s_rest)
-                  
+                  if(sum(s_tage_rest)>0){
+                    el<-rbind(el,s_rest)
+                    
+                  }                  
                   ids_neu<-c(ids_neu,nrow(el))
                 }
+                
+                # Falls nur eine (oder keine) extra Trasse hinzugekommen ist, dann wurde nicht wirklich was aufgeteilt
+                stopifnot(nrow(el)>nrow_old+1)
                 
                 # Update die Lösungsräume der Fahrlagenvarianten, die diese Systemtrasse benutzt hatten
                 e_id<-mikro[k]
                 
+                # Markiere, dass diese edge aufgetrennt worden ist
+                el$beenparent[which(el$id==mikro[k])]<-1
                 
+                
+                print("Gehe durch die solution spaces der FLG Var, um diese ggf. zu updaten:")
                 for(i in 1:nrow(r)){
                   if(e_id %in% as.integer(unlist(strsplit(r$res[i], split=", ")))){
+                    print("Update FLG Var:")
+                    print(r$id[i])
+                    print("alter solution space:")
+                    print(r$res[i])
                     
                     # Lösche geschnittene Systemtrasse
                     res_neu<-as.integer(unlist(strsplit(r$res[i], split=", ")))[which(as.integer(unlist(strsplit(r$res[i], split=", ")))!=e_id)]
@@ -127,10 +146,12 @@ sep_trassen<-function(el,r,n,mikro,makro){
                         indx[3]<-FALSE
                       }
                     }
-                    
-                    
+            
                     res_neu<-c(res_neu,ids_neu[indx])
                     r$res[i]<-toString(res_neu)
+                    
+                    print("neuer solution space:")
+                    print(r$res[i])
                   }
                 }
                 
@@ -164,6 +185,7 @@ sep_trassen<-function(el,r,n,mikro,makro){
       }
     }
   }
+  
   
   
   ## Return
