@@ -122,6 +122,7 @@ while(res$status!=0 & count <= maxcount){
         }else{
           ex<-extend_solution_spaces(el_blocked,r,varianten_indx,n) # Mach Wegesuche für alle Varianten der Partition j der Fahrlage i
         }
+        print("Habe neue Kandidaten für r und el")
         r_candid<-ex$r
         el_candid<-ex$el
         wegeSuche_count<-wegeSuche_count+ex$wegeSuche_count
@@ -136,6 +137,7 @@ while(res$status!=0 & count <= maxcount){
         
         
         if((!all(r_candid$res==r$res) | (r$valid[varianten_indx[1]]==0) & (all(r$res[varianten_indx]!="0")))){
+          print("Update r und el")
           r<-r_candid
           el<-el_candid
           
@@ -202,6 +204,8 @@ while(res$status!=0 & count <= maxcount){
             }else{
               ex<-extend_solution_spaces(el_blocked,r,varianten_indx,n) # Mach Wegesuche für alle Varianten der Partition j der Fahrlage i
             }
+            print("Habe neue Kandidaten für r und el")
+            
             r_candid<-ex$r
             el_candid<-ex$el
             wegeSuche_count<-wegeSuche_count+ex$wegeSuche_count
@@ -215,6 +219,8 @@ while(res$status!=0 & count <= maxcount){
             # neuen Partitionen, ob alle Fahrlagenvarianten einen Weg haben), dann wird diese Partition mein Gewinner
             
             if((!all(r_candid$res==r$res) | (r$valid[varianten_indx[1]]==0) & (all(r$res[varianten_indx]!="0")))){
+              print("Update r und el")
+              
               r<-r_candid
               el<-el_candid
               
@@ -266,7 +272,7 @@ while(res$status!=0 & count <= maxcount){
       stufe2_count<-stufe2_count-1
       
       ablehnung_id<-makro[length(makro)]
-      if(ablehnung_id==19){break}
+      #if(ablehnung_id==19){break}
       r$abgelehnt[which(r$fahrlage==ablehnung_id)]<-rep(1,length(which(r$fahrlage==ablehnung_id)))
       print(paste("Lehne Fahrlage ",ablehnung_id," ab.",sep=""))
       
@@ -275,6 +281,7 @@ while(res$status!=0 & count <= maxcount){
   
   
   ## Encode
+  print("Start Encoding")
   enc<-encode(el,r[which(r$abgelehnt==0 & r$valid==1),])
   A<-enc$A
   dir<-enc$dir
@@ -284,16 +291,16 @@ while(res$status!=0 & count <= maxcount){
   
   ## Solve SAT
   res<-lp(direction="max", objective.in=omega, const.mat=A, const.dir=dir, const.rhs=b, all.bin=TRUE)
-  print(res)
+  print(res$status)
 }
 
 ## Dekodiere Gesamtlösung
 solution<-decode(res$solution,el,r)
 
 ## Speicher als csv
-#write.csv(el,"0207_el_jordis.csv")
-#write.csv(r,"0207_r_jordis.csv")
-#write.csv(solution,"0207_solution_jordis.csv")
+#write.csv(el,"0502_el_jordis.csv")
+#write.csv(r,"0502_r_jordis.csv")
+#write.csv(solution,"0502_solution_jordis.csv")
 
 KPIs<-data.frame(stufe1=stufe1_count,stufe2=stufe2_count,ablehnung=ablehnen_count-length(unique(r$fahrlage[which(r$abgelehnt==0)])),wegesuche=wegeSuche_count)
 #write.csv(KPIs,"KPIsmitBau.csv")

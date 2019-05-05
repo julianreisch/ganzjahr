@@ -14,7 +14,7 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
   
   ## Solange meine Partition noch nicht vollständig ist, mache Wegesuche für neue Variante durch die blocked systras, 
   ## die an mind. 1 Tag gültig ist
-  part_id<-max(r$partition[which(r$fahrlage %in% r$fahrlage[rows])])+1
+  part_id<-max(r$partition)+1
   new_part<-c()
   bits_flg<-as.integer(apply(r[rows,11:(10+n)],2,sum))
   
