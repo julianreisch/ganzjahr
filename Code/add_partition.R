@@ -25,14 +25,18 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
   for(i in rows){
     print(paste("add-partition-iteration: ",it))
     it<-it+1
-      
+    
+    # Set number of fahrlagenvarianten that are being created  
     l<-1
+    
+    # Set v_top of the current Fahrlage
+    v_top_flg<-v_top[which(v_top==r$von[i]):which(v_top==r$bis[i])]
     
     while(T){
       var_id<-max(r$id)+l
       l<-l+1
       wegeSuche_count_temp<-wegeSuche_count_temp+1
-        try(spath<-bellmanford_bitconstr(el_temp,v_top,bits_flg,1,n))
+        try(spath<-bellmanford_bitconstr(el_temp,v_top_flg,bits_flg,1,n))
       if(length(spath)==0){
         print("Es konnte kein Weg mehr gefunden werden mit der aktuellen Bitleiste")
         break
@@ -147,25 +151,12 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
     }
   }
 
- 
-  ## Update parents: Wir speichern ja nur Wurzel Systemtrassen im Baum (keine Zwischenparents)
-  #while(length(which(el$parent[which(el$id %in% el$parent[which(el$parent!=0)])]!=0))>0){
-  #  for(k in 1:nrow(el)){
-  #    if(el$parent[k]!=0){
-  #      if(el$parent[which(el$id == el$parent[k])]!=0){
-  #        el$parent[k]<-el$parent[which(el$id == el$parent[k])]
-  #      }
-  #    }
-  #  }
-  #}
   
   ## Lösche doppelt gespeicherte legale Trassen
   for(i in 1:nrow(r)){
     ints<-as.integer(unlist(strsplit(r$res[i], split=", ")))
     r$res[i]<-toString(unique(ints))
   }
-  #print(r)
-  #print(el)
   
   
   ## Return
