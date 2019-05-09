@@ -112,7 +112,7 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
       
       for(k in unique(r$partition[which(r$fahrlage==flg)])){
         var_idx<-which(r$fahrlage==flg & r$partition==k)
-          #(first make sure that the sizes are the)
+        #(first make sure that the sizes are the)
         if(length(var_idx)==nrow(new_part)){
           if(all(r[var_idx,11:(10+n)]==new_part[,11:(10+n)])){
             known_part<-T
@@ -121,13 +121,15 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
         }
       }
       if(known_part==F){
-        print("new partition that is about to get added:")
-        print(new_part)
+        #print("new partition that is about to get added:")
+        #print(new_part)
+        
+        # Stell sicher, dass die Partition aus mind. 2 Varianten besteht
+        stopifnot(nrow(new_part)>=2)
+        
         # Stell sicher, dass am Ende auch alle Tage der FLG auch getroffen wurden
         stopifnot(apply(new_part[,11:(10+n)],2,sum)-as.integer(r[i,11:(10+n)])==0)
-        
-        # Stell ausserdem sicher, dass die Partition aus mind. 2 Varianten besteht
-        stopifnot(nrow(new_part)>=2)
+
         
         print("New partition:")
         print(new_part)
