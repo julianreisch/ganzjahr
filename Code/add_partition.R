@@ -121,6 +121,8 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
         }
       }
       if(known_part==F){
+        print("new partition that is about to get added:")
+        print(new_part)
         # Stell sicher, dass am Ende auch alle Tage der FLG auch getroffen wurden
         stopifnot(apply(new_part[,11:(10+n)],2,sum)-as.integer(r[i,11:(10+n)])==0)
         
