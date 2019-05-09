@@ -23,7 +23,8 @@ max_1<-function(x){
 }
 
 ### Load and initialize Data
-source("Tests/unit test patrick dynamisch.R")
+source("Tests/unit test patrick_gekuerzt.R")
+
 
 ## Lade Daten
 data<-load_data() 
@@ -31,6 +32,10 @@ el<-data$el
 r<-data$r
 n<-data$n
 v_top<-data$v_top
+
+## Check if test set meets requirements
+stopifnot(all(r$id==1:nrow(r)))
+
 
 ## Initialize ids
 el$id<-1:nrow(el)
