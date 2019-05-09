@@ -18,7 +18,7 @@ load_data<-function(){
   S<-nrow(el) # Number of Systemtrassen
   
   # State topological order of vertices
-  v_top<-c('A','D','E','F','B','H','G','C','I','J','K','L','M','N','O')  
+  v_top<-c('A','B','D','C','E','F','G','H','I','J','K','L','M','N','O')  
   
   ## Return
   out<-list()
