@@ -37,7 +37,7 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
       l<-l+1
       wegeSuche_count_temp<-wegeSuche_count_temp+1
         try(spath<-bellmanford_bitconstr(el_temp,v_top_flg,bits_flg,1,n))
-      if(length(spath)==0){
+      if(length(spath)==0 || length(spath$epath)){
         print("Es konnte kein Weg mehr gefunden werden mit der aktuellen Bitleiste")
         break
       }else{
