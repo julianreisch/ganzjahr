@@ -56,7 +56,7 @@ extend_solution_spaces<-function(el,r,rows,n){
   
   ## Lösche doppelt gespeicherte legale Trassen
   for(i in 1:nrow(r)){
-    ints<-as.integer(unlist(strsplit(r$res[i], split=", ")))
+    ints<-as.integer(unlist(strsplit(as.character(r$res[i]), split=", ")))
     r$res[i]<-toString(unique(ints))
   }
   

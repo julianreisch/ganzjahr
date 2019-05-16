@@ -18,12 +18,16 @@ source("decoding.R")
 source("bellmanford_bitconstr.R")
 source("add_partition.R")
 
+## Start Logging
+#filename<-"Log.txt"
+#sink(filename)
+
 max_1<-function(x){
   return(max(x,1))
 }
 
 ### Load and initialize Data
-source("Tests/unit test patrick_gekuerzt.R")
+source("Tests/unit test patrick_gekuerzt.r.r")
 
 
 ## Lade Daten
@@ -68,7 +72,7 @@ stufe2_count<-0
 
 ## Set dynamische Schneideregel
 dyn_split <- T
-maxcount<-100
+maxcount<-1
 count<-0
 
 ### Solange das Gesamtproblem nicht lösbar ist...
@@ -317,3 +321,6 @@ KPIs<-data.frame(stufe1=stufe1_count,stufe2=stufe2_count,ablehnung=ablehnen_coun
 #print(paste("Es wurde ",stufe1_count," mal Stufe 1, ",stufe2_count," mal Stufe 2 und ",stufe3_count," mal Stufe 3 angewandt.",sep=""))
 #print(paste("Es wurden ",ablehnen_count-length(unique(r$fahrlage))," Fahrlagen abgelehnt.",sep=""))
 #el[which(el$beenparent==0),][which(el[which(el$beenparent==0),]$id %in% c(71,72,73,100,101,138,139,140,147,148,149,159,160,161)),]
+
+## Ende Logging
+#sink()
