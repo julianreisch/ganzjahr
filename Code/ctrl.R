@@ -27,7 +27,7 @@ max_1<-function(x){
 }
 
 ### Load and initialize Data
-source("Tests/unit test patrick_gekuerzt.r.r")
+source("Tests/unit test Bsp1_dyn.r")
 
 
 ## Lade Daten
@@ -46,14 +46,14 @@ el$id<-1:nrow(el)
 
 ## Suche Initial Wege für Solution Spaces und Zähler für Wegesuche
 wegeSuche_count<-0
-init<-extend_solution_spaces(el,r,1:nrow(r),n) 
+init<-extend_solution_spaces(el,r,1:nrow(r),v_top,n) 
 el<-init$el
 r<-init$r
 wegeSuche_count<-init$wegeSuche_count
 
 ## Initialisiere Validity
 ablehnen_count<-length(unique(r$fahrlage))
-r<-validity(r)
+#r<-validity(r)
 
 ## Initialisiere Lösung 
 # Encode Initialdaten

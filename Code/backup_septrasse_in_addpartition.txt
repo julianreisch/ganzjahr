@@ -1,0 +1,107 @@
+ ### Separiere ggf. von verschiedenen varianten der neuen partition genutzte trassen
+  #trassen<-as.integer(unlist(strsplit(as.character(new_part$res), split=", ")))
+  ## mach das natürlich nur, falls mehr als 1 variante in der partition ist
+  #if(nrow(new_part)>1){
+  #  for(t in trassen){
+  #    for(k in 1:(nrow(new_part)-1)){
+  #      print("summe")
+  #      print(new_part[k,11:(10+n)])
+  #      print(el[which(el$id == t),7:(6+n)])
+  #      if(t %in% as.integer(unlist(strsplit(as.character(new_part$res[k]), split=", "))) &
+  #         sum(new_part[k,11:(10+n)]) < sum(el[which(el$id == t),7:(6+n)])){
+  #        
+  #        # Kommt die Trasse in einer zweiten variante der partition vor?
+  #        second<-FALSE
+  #        for(j in (k+1):nrow(new_part)){
+  #          if(t %in% as.integer(unlist(strsplit(as.character(new_part$res[j]), split=", ")))){
+  #            second<-TRUE
+  #          }
+  #        }
+  #        if(second==TRUE){
+  #          ##Dann Splitte all ihre Children!
+  #          print("Zu Splitten sind die Children der Systra:")
+  #          print(t)
+  #          
+  #          ## Suche die Children, die mit dem zeitfensters der variante gültigkeiten überschneiden
+  #          ## um diese children dann zu zerteilen
+  #          ## to do: zerteile das child dann direkt für alle varianten, die das child schneiden
+  #          ## und update deren (=von den varianten) lösungsräume
+  #          children<-c()
+  #          for(s in el$id[which(el$parent == t | (el$beenparent==0 & el$id == t))]){
+  #            if(!all(new_part[k,(11:(10+n))]-el[which(el$id==s),(7:(6+n))]!=0)){
+  #              children<-c(children,s)
+  #            }
+  #          }            
+  #          print("mit den Ids:")
+  #          print(children)
+  #          for(s in children){
+  #            print("Jetzt ist folgendes child dran")
+  #            print(s)
+  #            
+  #            ## Suche wieder nach Varianten, die dieses Child splitten würden
+  #            vars<-c()
+  #            for(l in 1:nrow(new_part)){
+  #              if(!all(new_part[l,(11:(10+n))]-el[which(el$id==s),(7:(6+n))]!=0)){
+  #                vars<-c(vars,l)
+  #              }
+  #            }
+  #            
+  #            ## Finde die eindeutigen Spalten, in die das child gesplitten werden muss
+  #            ## das sind die Gültigkeiten der Varianten mal die Gültigkeit des Childs
+  #            ## zusätzlich gibt es noch die "rest"-trasse, die die Gültigkeit der Children
+  #            ## hat, die keine der varianten braucht
+  #            sum_guelt_var<-apply(new_part[vars,11:(10+n)],1,max)
+  #            rest_der_childtrasse<-el[which(el$id==s),(7:(6+n))] * sum_guelt_var
+  #            A<-as.matrix(rbind(new_part[vars,11:(10+n)],rest_der_childtrasse))
+  #            B<-diag(as.numeric(el[which(el$id==s),(7:(6+n))]))
+  #            
+  #            grandchildren<-unique(A %*% B, MARGIN = 2)
+  #            
+  #            print("und das hat die grandchrildren")
+  #            print(grandchildren)
+  #            
+  #            ## Splitte nach jedem Grandchild
+  #            el$beenparent[which(el$id==s)]<-1
+  #            
+  #            for(m in 1:ncol(grandchildren)){
+  #              
+  #              # Füge neuen Grandchild hinzu...
+  #              s_prime<-el[which(el$id==s),]
+  #              s_prime$id<-nrow(el)+1
+  #              s_prime$beenparent[1]<-0
+  #              s_prime$parent<-s
+  #              s_tage_prime<-grandchildren[,m]
+  #              s_prime[1,7:(6+n)]<-s_tage_prime
+  #              el<-rbind(el,s_prime)
+  #              
+  #            }
+  #            
+  #            ## Update Lösungsraum aller Fahrlagenvarianten, die zuvor das Child s benutzt hatten
+  #            
+  #            # Merke neue edge ids
+  #            ids_neu<-el$id[(nrow(el)-1):nrow(el)]
+  #            
+  #            for(i in 1:nrow(r)){
+  #              if(s %in% as.integer(unlist(strsplit(r$res[i], split=", ")))){
+  #                
+  #                # Lösche geschnittene Systemtrasse
+  #                res_neu<-as.integer(unlist(strsplit(r$res[i], split=", ")))[which(as.integer(unlist(strsplit(r$res[i], split=", ")))!=s)]
+  #                
+  #                # Füge Grandchildren hinzu
+  #                indx<-rep(FALSE,length(grandchildren))
+  #                for(l in 1:length(grandchildren)){
+  #                  if(length(which(r[i,11:(10+n)]==1 & el[which(el$id==ids_neu[l]),7:(6+n)]==1))>0){
+  #                    indx[l]<-TRUE
+  #                  }
+  #                }
+  #                res_neu<-c(res_neu,ids_neu[indx])
+  #                r$res[i]<-toString(res_neu)
+  #              }
+  #            }
+  #          }
+  #        }
+  #      }
+  #    }
+  #  }    
+  #}
+  #
