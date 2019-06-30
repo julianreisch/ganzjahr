@@ -27,7 +27,7 @@ max_1<-function(x){
 }
 
 ### Load and initialize Data
-source("Tests/unit test Bsp1_dyn.r")
+source("Tests/unit test patrick_gekuerzt.r")
 
 
 ## Lade Daten

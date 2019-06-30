@@ -112,6 +112,34 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
     # If covering parition has been found, 
     if(all(bits_flg<=0)){
       
+      # Versuche die Partition mit sogar noch weniger Varianten, wenn diese die ganze Bitleiste schon überdecken
+      if(nrow(new_part)>1){
+        print(new_part)
+        bits_objective<-as.integer(apply(r[rows,11:(10+n)],2,sum))
+        bits_trassen_matrix<-matrix(0,0,n)
+        for(i in 1:nrow(new_part)){
+          trassen<-as.integer(unlist(strsplit(as.character(new_part$res[i]), split=", ")))
+          bits_trassen_df<-el_blocked[which(el_blocked$id %in% trassen),7:(6+n)]
+          bits_trassen<-apply(bits_trassen_df,2,min)
+          bits_trassen_matrix<-rbind(bits_trassen_matrix,bits_trassen)
+        }
+        bits_trassen_matrix_filtered<-as.matrix(bits_trassen_matrix[,bits_objective==1])
+        print("bits_trassenmatrix_filtered:")
+        print(bits_trassen_matrix_filtered)
+
+        sol<-lp("min",rep(1,nrow(bits_trassen_matrix_filtered)),t(bits_trassen_matrix_filtered),rep(">=",ncol(bits_trassen_matrix_filtered)),rep(1,ncol(bits_trassen_matrix_filtered)))
+        print("solution:")
+        print(sol$solution)
+        
+        new_part<-new_part[sol$solution,]
+        new_part[,11:(10+n)]<-bits_trassen_matrix[sol$solution,]
+        
+        print("New new partition:")
+        print(new_part)
+        
+        
+      }
+      
       # (Make sure the partition has the right order so that we can compare bits to other partitions)
       for(j in n:1){
         new_part<-new_part[order(-new_part[,10+j]),]
