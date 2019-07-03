@@ -1,4 +1,6 @@
 bellmanford_bitconstr<-function(el,v_top_flg,bits_flg,k,n){
+  ### Hard coded: k
+  k<-1
   
   # Setze topological ordering der vertices voraus (etwa durch zeitl Reihenfolge der Kanten)
   bits<-matrix(0,length(v_top_flg),n)

@@ -116,23 +116,44 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
       if(nrow(new_part)>1){
         print(new_part)
         bits_objective<-as.integer(apply(r[rows,11:(10+n)],2,sum))
+        
+        fahrzeiten<-c()
         bits_trassen_matrix<-matrix(0,0,n)
         for(i in 1:nrow(new_part)){
           trassen<-as.integer(unlist(strsplit(as.character(new_part$res[i]), split=", ")))
-          bits_trassen_df<-el_blocked[which(el_blocked$id %in% trassen),7:(6+n)]
+          trassen<-order(trassen)
+          fahrzeit_trasse<-sum(as.integer(el_blocked$weight[which(el_blocked$id %in% trassen)]))
+          print("trassen:")
+          print(trassen)
+          
+          selbst_parent_trassen<-trassen[which(el_blocked$parent[which(el_blocked$id %in% trassen)]==0)]
+          fremder_parent_trassen<-trassen[which(el_blocked$parent[which(el_blocked$id %in% trassen)]!=0)]
+          print("selbst_parent, fremnder parent:")
+          print(selbst_parent_trassen)
+          print(fremder_parent_trassen)
+          
+          parents<-el_blocked$parent[which(el_blocked$id %in% fremder_parent_trassen)]
+          print("parent:")
+          print(parent)
+          bits_trassen_df<-el_blocked[which(el_blocked$id %in% c(parents,selbst_parent_trassen)),7:(6+n)]
+          
+          print("bits trassen df:")
+          print(bits_trassen_df)
+          
           bits_trassen<-apply(bits_trassen_df,2,min)
           bits_trassen_matrix<-rbind(bits_trassen_matrix,bits_trassen)
+          fahrzeiten<-c(fahrzeiten,fahrzeit_trasse)
         }
         bits_trassen_matrix_filtered<-as.matrix(bits_trassen_matrix[,bits_objective==1])
         print("bits_trassenmatrix_filtered:")
         print(bits_trassen_matrix_filtered)
 
-        sol<-lp("min",rep(1,nrow(bits_trassen_matrix_filtered)),t(bits_trassen_matrix_filtered),rep(">=",ncol(bits_trassen_matrix_filtered)),rep(1,ncol(bits_trassen_matrix_filtered)))
+        sol<-lp("min",fahrzeiten,t(bits_trassen_matrix_filtered),rep(">=",ncol(bits_trassen_matrix_filtered)),rep(1,ncol(bits_trassen_matrix_filtered)))
         print("solution:")
         print(sol$solution)
         
-        new_part<-new_part[sol$solution,]
-        new_part[,11:(10+n)]<-bits_trassen_matrix[sol$solution,]
+        new_part<-new_part[sol$solution==1,]
+        new_part[,(11:(10+n))[bits_objective==1]]<-bits_trassen_matrix_filtered[sol$solution==1,]
         
         print("New new partition:")
         print(new_part)
@@ -164,7 +185,7 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
         #print(new_part)
         
         # Stell sicher, dass die Partition aus mind. 2 Varianten besteht
-        stopifnot(nrow(new_part)>=2)
+        # stopifnot(nrow(new_part)>=2)
         
         # Stell sicher, dass am Ende auch alle Tage der FLG auch getroffen wurden
         stopifnot(apply(new_part[,11:(10+n)],2,sum)-as.integer(r[i,11:(10+n)])==0)
