@@ -121,7 +121,7 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
         bits_trassen_matrix<-matrix(0,0,n)
         for(i in 1:nrow(new_part)){
           trassen<-as.integer(unlist(strsplit(as.character(new_part$res[i]), split=", ")))
-          trassen<-order(trassen)
+          trassen<-trassen[order(trassen)]
           fahrzeit_trasse<-sum(as.integer(el_blocked$weight[which(el_blocked$id %in% trassen)]))
           print("trassen:")
           print(trassen)
@@ -151,6 +151,10 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
         sol<-lp("min",fahrzeiten,t(bits_trassen_matrix_filtered),rep(">=",ncol(bits_trassen_matrix_filtered)),rep(1,ncol(bits_trassen_matrix_filtered)))
         print("solution:")
         print(sol$solution)
+        
+        #all_sol<-lp("min",rep(0,length(fahrzeiten)),t(bits_trassen_matrix_filtered),rep(">=",ncol(bits_trassen_matrix_filtered)),rep(1,ncol(bits_trassen_matrix_filtered)),all.bin = T,num.bin.solns = 2^length(fahrzeiten))
+        #print("All solutions:")
+        #print(all_sol)
         
         new_part<-new_part[sol$solution==1,]
         new_part[,(11:(10+n))[bits_objective==1]]<-bits_trassen_matrix_filtered[sol$solution==1,]
