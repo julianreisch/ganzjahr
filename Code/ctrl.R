@@ -1,6 +1,6 @@
 ### Set Working Directory
 # ##
-setwd("~/02_Projekte/24_SAT und Ganzj Bel/ganzjahr/Code")
+setwd("~/Diplomarbeit/22_07_auffüllen_k/ganzjahr-master/Code")
 
 ### Load Libraries
 library(igraph)
@@ -19,8 +19,12 @@ source("bellmanford_bitconstr.R")
 source("add_partition.R")
 
 ## Start Logging
-#filename<-"Log.txt"
-#sink(filename)
+filename<-"test.txt"
+sink(filename)
+
+##Zeit
+print("Startzeit")
+Sys.time()
 
 max_1<-function(x){
   return(max(x,1))
@@ -51,6 +55,14 @@ el<-init$el
 r<-init$r
 wegeSuche_count<-init$wegeSuche_count
 
+for(i in 1:nrow(r)){
+  if(r$res[i]=="0"){
+    r$abgelehnt[i]<-1
+    print("Fahrlage abgelehnt")
+    print(r$id[i])
+  }
+}
+
 ## Initialisiere Validity
 ablehnen_count<-length(unique(r$fahrlage))
 #r<-validity(r)
@@ -76,7 +88,7 @@ maxcount<-1
 count<-0
 
 ### Solange das Gesamtproblem nicht lösbar ist...
-while(res$status!=0 & count <= maxcount){
+while(res$status!=0 & count <= maxcount & nrow(r[which(r$abgelehnt!=1),])>0){
   count <- count #+ 1
   nrow_old<-nrow(r)
   
@@ -322,5 +334,9 @@ KPIs<-data.frame(stufe1=stufe1_count,stufe2=stufe2_count,ablehnung=ablehnen_coun
 #print(paste("Es wurden ",ablehnen_count-length(unique(r$fahrlage))," Fahrlagen abgelehnt.",sep=""))
 #el[which(el$beenparent==0),][which(el[which(el$beenparent==0),]$id %in% c(71,72,73,100,101,138,139,140,147,148,149,159,160,161)),]
 
+##Zeit
+print("Endzeit")
+Sys.time()
+
 ## Ende Logging
-#sink()
+sink()
