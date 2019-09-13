@@ -1,6 +1,6 @@
-### Set Working Directory
+## Set Working Directory
 # ##
-setwd("~/Diplomarbeit/22_07_auffüllen_k/ganzjahr-master/Code")
+setwd("~/Diplomarbeit/ganzjahr-master - Kopie/Code")
 
 ### Load Libraries
 library(igraph)
@@ -18,8 +18,8 @@ source("decoding.R")
 source("bellmanford_bitconstr.R")
 source("add_partition.R")
 
-## Start Logging
-filename<-"test.txt"
+## Start Loggingr
+filename<-"neu1.txt"
 sink(filename)
 
 ##Zeit
@@ -31,7 +31,7 @@ max_1<-function(x){
 }
 
 ### Load and initialize Data
-source("Tests/unit test patrick_gekuerzt.r")
+source("Tests/unit test neu.r")
 
 
 ## Lade Daten
@@ -55,13 +55,13 @@ el<-init$el
 r<-init$r
 wegeSuche_count<-init$wegeSuche_count
 
-for(i in 1:nrow(r)){
-  if(r$res[i]=="0"){
-    r$abgelehnt[i]<-1
-    print("Fahrlage abgelehnt")
-    print(r$id[i])
-  }
-}
+#for(i in 1:nrow(r)){
+#  if(r$res[i]=="0"){
+#    r$abgelehnt[i]<-1
+#    print("Fahrlage abgelehnt")
+#    print(r$id[i])
+#  }
+#}
 
 ## Initialisiere Validity
 ablehnen_count<-length(unique(r$fahrlage))
@@ -88,7 +88,7 @@ maxcount<-1
 count<-0
 
 ### Solange das Gesamtproblem nicht lösbar ist...
-while(res$status!=0 & count <= maxcount & nrow(r[which(r$abgelehnt!=1),])>0){
+while(res$status!=0 & count <= maxcount){
   count <- count #+ 1
   nrow_old<-nrow(r)
   
@@ -100,7 +100,7 @@ while(res$status!=0 & count <= maxcount & nrow(r[which(r$abgelehnt!=1),])>0){
   
   ## Finde einen Mikrokonflikt
   benutzteSystemtrassen<-unique(as.integer(unlist(strsplit(r$res[which(r$valid==1 & r$fahrlage %in% makro)], split=", "))))
-  mikro<-mikro_konflikte(el[which(el$beenparent==0 & el$id %in% benutzteSystemtrassen),],r[which(r$valid==1),],makro)
+  mikro<-mikro_konflikte(el[which(el$beenparent==0 & el$id %in% benutzteSystemtrassen),],r[which(r$fahrlage %in% makro & r$valid==1),],makro)
   print("Mikro")
   print(mikro)
   
@@ -110,6 +110,9 @@ while(res$status!=0 & count <= maxcount & nrow(r[which(r$abgelehnt!=1),])>0){
   sep<-sep_trassen(el,r,n,mikro,makro)
   el<-sep$el
   r<-sep$r
+  
+  print("el")
+  print(el)
   
   # 2 Falls keine Systemtrasse geteilt werden konnte, sperre Mikrokonflikttrassen
   #   im entsprechenden Konfliktzeitraum, um alternative Wege zu finden 
@@ -165,7 +168,9 @@ while(res$status!=0 & count <= maxcount & nrow(r[which(r$abgelehnt!=1),])>0){
           # Make sure all systras have at least one valid day
           stopifnot(all(apply(el[,7:(6+n)],1,sum)>0))
           terminate<-TRUE
-          break
+          print('r')
+          print(r)
+          #break
         }
         
         #if(nrow(r)==nrow(r_candid)){#ich hab keine neue partition gefunden
@@ -248,7 +253,9 @@ while(res$status!=0 & count <= maxcount & nrow(r[which(r$abgelehnt!=1),])>0){
               # Make sure all systras have at least one valid day
               stopifnot(all(apply(el[,7:(6+n)],1,sum)>0))
               terminate<-TRUE
-              break
+              #print('2.Sperrung -r')
+              #print(r)
+              #break
             }
             
           #  if(nrow(r)==nrow(r_candid)){#ich hab keine neue partition gefunden
@@ -319,17 +326,17 @@ while(res$status!=0 & count <= maxcount & nrow(r[which(r$abgelehnt!=1),])>0){
 solution<-decode(res$solution,el,r)
 
 ## Speicher als csv
-#write.csv(el,"0502_el_jordis.csv")
-#write.csv(r,"0502_r_jordis.csv")
-#write.csv(solution,"0502_solution_jordis.csv")
+write.csv(el,"1009_neu1_el.csv")
+write.csv(r,"1009_neu1_r.csv")
+write.csv(solution,"1009_neu1_solution.csv")
 
 KPIs<-data.frame(stufe1=stufe1_count,stufe2=stufe2_count,ablehnung=ablehnen_count-length(unique(r$fahrlage[which(r$abgelehnt==0)])),wegesuche=wegeSuche_count)
-#write.csv(KPIs,"KPIsmitBau.csv")
+write.csv(KPIs,"1009_neu1_KPIs.csv")
 
 
 ## Print KPIs
-#print(paste("Die Wegesuche wurde ",wegeSuche_count," mal aufgerufen.",sep=""))
-#print(paste("ES wurden ",length(unique(el$parent))," Trassen geteilt.",sep=""))
+print(paste("Die Wegesuche wurde ",wegeSuche_count," mal aufgerufen.",sep=""))
+print(paste("ES wurden ",length(unique(el$parent))," Trassen geteilt.",sep=""))
 #print(paste("Es wurde ",stufe1_count," mal Stufe 1, ",stufe2_count," mal Stufe 2 und ",stufe3_count," mal Stufe 3 angewandt.",sep=""))
 #print(paste("Es wurden ",ablehnen_count-length(unique(r$fahrlage))," Fahrlagen abgelehnt.",sep=""))
 #el[which(el$beenparent==0),][which(el[which(el$beenparent==0),]$id %in% c(71,72,73,100,101,138,139,140,147,148,149,159,160,161)),]

@@ -7,6 +7,7 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
   #print(el_blocked)
   
   
+  
   wegeSuche_count_temp<-0
   el_temp<-el_blocked[which(el_blocked$parent==0),]
   # rows<-which(r$partition==1) # Je nach dem was Jordis befielt: Set indices of covering partition
@@ -17,6 +18,8 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
   part_id<-max(r$partition)+1
   new_part<-c()
   bits_flg<-as.integer(apply(r[rows,11:(10+n)],2,sum))
+  print('bits_flg')
+  print(bits_flg)
   
   print("add_partition für FLG")
   print(r$fahrlage[rows])
@@ -111,59 +114,60 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
     
     # If covering parition has been found, 
     if(all(bits_flg<=0)){
+      print('komme ich hier hin?')
       
-      # Versuche die Partition mit sogar noch weniger Varianten, wenn diese die ganze Bitleiste schon überdecken
-      if(nrow(new_part)>1){
-        print(new_part)
-        bits_objective<-as.integer(apply(r[rows,11:(10+n)],2,sum))
-        
-        fahrzeiten<-c()
-        bits_trassen_matrix<-matrix(0,0,n)
-        for(i in 1:nrow(new_part)){
-          trassen<-as.integer(unlist(strsplit(as.character(new_part$res[i]), split=", ")))
-          trassen<-trassen[order(trassen)]
-          fahrzeit_trasse<-sum(as.integer(el_blocked$weight[which(el_blocked$id %in% trassen)]))
-          print("trassen:")
-          print(trassen)
-          
-          selbst_parent_trassen<-trassen[which(el_blocked$parent[which(el_blocked$id %in% trassen)]==0)]
-          fremder_parent_trassen<-trassen[which(el_blocked$parent[which(el_blocked$id %in% trassen)]!=0)]
-          print("selbst_parent, fremnder parent:")
-          print(selbst_parent_trassen)
-          print(fremder_parent_trassen)
-          
-          parents<-el_blocked$parent[which(el_blocked$id %in% fremder_parent_trassen)]
-          print("parent:")
-          print(parent)
-          bits_trassen_df<-el_blocked[which(el_blocked$id %in% c(parents,selbst_parent_trassen)),7:(6+n)]
-          
-          print("bits trassen df:")
-          print(bits_trassen_df)
-          
-          bits_trassen<-apply(bits_trassen_df,2,min)
-          bits_trassen_matrix<-rbind(bits_trassen_matrix,bits_trassen)
-          fahrzeiten<-c(fahrzeiten,fahrzeit_trasse)
-        }
-        bits_trassen_matrix_filtered<-as.matrix(bits_trassen_matrix[,bits_objective==1])
-        print("bits_trassenmatrix_filtered:")
-        print(bits_trassen_matrix_filtered)
-
-        sol<-lp("min",fahrzeiten,t(bits_trassen_matrix_filtered),rep(">=",ncol(bits_trassen_matrix_filtered)),rep(1,ncol(bits_trassen_matrix_filtered)))
-        print("solution:")
-        print(sol$solution)
-        
-        #all_sol<-lp("min",rep(0,length(fahrzeiten)),t(bits_trassen_matrix_filtered),rep(">=",ncol(bits_trassen_matrix_filtered)),rep(1,ncol(bits_trassen_matrix_filtered)),all.bin = T,num.bin.solns = 2^length(fahrzeiten))
-        #print("All solutions:")
-        #print(all_sol)
-        
-        new_part<-new_part[sol$solution==1,]
-        new_part[,(11:(10+n))[bits_objective==1]]<-bits_trassen_matrix_filtered[sol$solution==1,]
-        
-        print("New new partition:")
-        print(new_part)
-        
-        
-      }
+#      # Versuche die Partition mit sogar noch weniger Varianten, wenn diese die ganze Bitleiste schon überdecken
+#      if(nrow(new_part)>1){
+#        print(new_part)
+#        bits_objective<-as.integer(apply(r[rows,11:(10+n)],2,sum))
+#        
+#        fahrzeiten<-c()
+#        bits_trassen_matrix<-matrix(0,0,n)
+#        for(i in 1:nrow(new_part)){
+#          trassen<-as.integer(unlist(strsplit(as.character(new_part$res[i]), split=", ")))
+#          trassen<-trassen[order(trassen)]
+#          fahrzeit_trasse<-sum(as.integer(el_blocked$weight[which(el_blocked$id %in% trassen)]))
+#          print("trassen:")
+#          print(trassen)
+#          
+#          selbst_parent_trassen<-trassen[which(el_blocked$parent[which(el_blocked$id %in% trassen)]==0)]
+#          fremder_parent_trassen<-trassen[which(el_blocked$parent[which(el_blocked$id %in% trassen)]!=0)]
+#          print("selbst_parent, fremnder parent:")
+#          print(selbst_parent_trassen)
+#          print(fremder_parent_trassen)
+#          
+#          parents<-el_blocked$parent[which(el_blocked$id %in% fremder_parent_trassen)]
+#          print("parent:")
+#          print(parent)
+#          bits_trassen_df<-el_blocked[which(el_blocked$id %in% c(parents,selbst_parent_trassen)),7:(6+n)]
+#          
+#          print("bits trassen df:")
+#          print(bits_trassen_df)
+#          
+#          bits_trassen<-apply(bits_trassen_df,2,min)
+#          bits_trassen_matrix<-rbind(bits_trassen_matrix,bits_trassen)
+#          fahrzeiten<-c(fahrzeiten,fahrzeit_trasse)
+#        }
+#        bits_trassen_matrix_filtered<-as.matrix(bits_trassen_matrix[,bits_objective==1])
+#        print("bits_trassenmatrix_filtered:")
+#        print(bits_trassen_matrix_filtered)
+#
+#        sol<-lp("min",fahrzeiten,t(bits_trassen_matrix_filtered),rep(">=",ncol(bits_trassen_matrix_filtered)),rep(1,ncol(bits_trassen_matrix_filtered)))
+#        print("solution:")
+#        print(sol$solution)
+#        
+#        #all_sol<-lp("min",rep(0,length(fahrzeiten)),t(bits_trassen_matrix_filtered),rep(">=",ncol(bits_trassen_matrix_filtered)),rep(1,ncol(bits_trassen_matrix_filtered)),all.bin = T,num.bin.solns = 2^length(fahrzeiten))
+#        #print("All solutions:")
+#        #print(all_sol)
+#        
+#        new_part<-new_part[sol$solution==1,]
+#        new_part[,(11:(10+n))[bits_objective==1]]<-bits_trassen_matrix_filtered[sol$solution==1,]
+#        
+#        print("New new partition:")
+#        print(new_part)
+#        
+#        
+#      }
       
       # (Make sure the partition has the right order so that we can compare bits to other partitions)
       for(j in n:1){
@@ -173,9 +177,21 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
       # and this is a new partiton (i.e. not some known one with new paths)
       known_part<-F
       flg <- new_part$fahrlage[1]
+      #flg <- new_part$fahrlage[i]
+      #print('flg')
+      #print(i)
+      #print(flg)
+      #print(new_part$fahrlage[i])
+      #print(r$partition[which(r$fahrlage==flg)])
       
       for(k in unique(r$partition[which(r$fahrlage==flg)])){
+        #print('k')
+        #print(k)
+        #print('un')
+        #print(unique(r$partition[which(r$fahrlage==flg)]))
         var_idx<-which(r$fahrlage==flg & r$partition==k)
+        #print(var_idx)
+        #print(new_part)
         #(first make sure that the sizes are the)
         if(length(var_idx)==nrow(new_part)){
           if(all(r[var_idx,11:(10+n)]==new_part[,11:(10+n)])){
