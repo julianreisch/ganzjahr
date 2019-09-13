@@ -66,10 +66,24 @@ add_partition<-function(el,el_blocked,r,rows,v_top,n){
       for(k in 1:length(indices_ineltemp_parents)){
         indices_inel_children<-which((el$parent==el_temp$id[indices_ineltemp_parents[k]] & el$beenparent==0) |
                                        (el$id==el_temp$id[indices_ineltemp_parents[k]] & el$beenparent==0))
+        print("indices_inel_children")
+        print(indices_inel_children)
         
         ## Falls Child Systemtrasse relevant (überschneidender Gültigkeitszeitraum), nimm hinzu
         for(j in 1:length(indices_inel_children)){
-          if(length(which(r[i,11:(10+n)]==1 & el[indices_inel_children[j],7:(6+n)]==1))>0){
+          
+          ##Bestimmt die Gültigkeit, der gefundenen Variante für die Prüfung
+          var_bits_pruef<-r[0,11:(10+n)]
+          var_bits_pruef[1,]<-spath$bits
+          
+          #print("j")
+          #print(j)
+          #print(el[indices_inel_children[j],7:(6+n)]==1)
+          #print(r[i,11:(10+n)]==1)
+          #print(var_bits_pruef==1)
+          
+          #if(length(which(r[i,11:(10+n)]==1 & el[indices_inel_children[j],7:(6+n)]==1))>0){
+          if(length(which(var_bits_pruef==1 & el[indices_inel_children[j],7:(6+n)]==1))>0){
             ids<-c(ids,el$id[indices_inel_children[j]])
           }
         }
