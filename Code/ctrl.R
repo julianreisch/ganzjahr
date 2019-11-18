@@ -1,6 +1,6 @@
 ## Set Working Directory
 # ##
-setwd("~/Diplomarbeit/ganzjahr-master - Kopie/Code")
+setwd("~/Diplomarbeit/Diplom/ganzjahr-master/Code")
 
 ### Load Libraries
 library(igraph)
@@ -19,7 +19,7 @@ source("bellmanford_bitconstr.R")
 source("add_partition.R")
 
 ## Start Loggingr
-filename<-"neu1.txt"
+filename<-"gesamt_verb_auf.txt"
 sink(filename)
 
 ##Zeit
@@ -31,7 +31,7 @@ max_1<-function(x){
 }
 
 ### Load and initialize Data
-source("Tests/unit test neu.r")
+source("Tests/gesamt_verb_ganz.r")
 
 
 ## Lade Daten
@@ -62,6 +62,15 @@ wegeSuche_count<-init$wegeSuche_count
 #    print(r$id[i])
 #  }
 #}
+
+for (i in unique(r$fahrlage)){
+  if (all(r$res[which(r$fahrlage==i)]=="0")){
+    #stopifnot(length(which(r$fahrlage==i)==1))
+    r$abgelehnt[which(r$fahrlage==i)]<-1
+    print("Fahrlage abgelehnt")
+    print(r$id[which(r$fahrlage==i)])
+  }
+}
 
 ## Initialisiere Validity
 ablehnen_count<-length(unique(r$fahrlage))
@@ -96,6 +105,7 @@ while(res$status!=0 & count <= maxcount){
   makro<-makro_konflikte(el[which(el$beenparent==0),],r[which(r$abgelehnt==0 & r$valid==1),])
   print("Makro:")
   print(makro)
+  print(r)
   
   
   ## Finde einen Mikrokonflikt
@@ -210,6 +220,7 @@ while(res$status!=0 & count <= maxcount){
         if(k==0){
           el_blocked<-el
         }else{
+          print("hier")
           el_blocked<-block_trassen(el,r,makro,mikro[k],n)
         }
         
@@ -326,12 +337,12 @@ while(res$status!=0 & count <= maxcount){
 solution<-decode(res$solution,el,r)
 
 ## Speicher als csv
-write.csv(el,"1009_neu1_el.csv")
-write.csv(r,"1009_neu1_r.csv")
-write.csv(solution,"1009_neu1_solution.csv")
+write.csv(el,"gesamt_verb_auf_el.csv")
+write.csv(r,"gesamt_verb_auf_r.csv")
+write.csv(solution,"gesamt_verb_auf_solution.csv")
 
 KPIs<-data.frame(stufe1=stufe1_count,stufe2=stufe2_count,ablehnung=ablehnen_count-length(unique(r$fahrlage[which(r$abgelehnt==0)])),wegesuche=wegeSuche_count)
-write.csv(KPIs,"1009_neu1_KPIs.csv")
+write.csv(KPIs,"gesamt_verb_auf_KPIs.csv")
 
 
 ## Print KPIs

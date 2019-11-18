@@ -13,7 +13,9 @@ sep_trassen<-function(el,r,n,mikro,makro){
     j<-1
     lenmakro<-2
   }else{
-    j<-2
+    #j<-2 
+    #auf 1 damit auch Fahrlagenvarianten einer Fahrlage eine Trasse aufteilen
+    j<-1
     lenmakro<-length(makro)}
   p<-1
   q<-1
@@ -53,6 +55,8 @@ sep_trassen<-function(el,r,n,mikro,makro){
               print("Und die Vereinigung der Gültigkeitszeiträume der Fahrlagenvarianten:")
               union_var<-r[p_index,(11:(10+n))[gueltig]]+r[q_index,(11:(10+n))[gueltig]]
               union_var<-sapply(as.numeric(union_var),max_1)
+              print("max_1")
+              print(max_1)
               print(union_var)
               
               ## Zerteile die Trasse nur, wenn sich die Varianten nicht überschneiden, aber den 

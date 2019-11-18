@@ -1,6 +1,6 @@
 bellmanford_bitconstr<-function(el,v_top_flg,bits_flg,k,n){
   ### Hard coded: k
-  k<-37
+  k<-1
   reduce<-TRUE
   
   while(reduce==TRUE){
